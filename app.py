@@ -49,6 +49,7 @@ if st.button("🚀 Generate Bridge Report"):
             # Show Result
             report_text = response.text
             st.markdown(report_text)
+            
 # --- 4. PDF GENERATION (FIXED) ---
 pdf = FPDF()
 pdf.add_page()
