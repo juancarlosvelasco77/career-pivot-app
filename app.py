@@ -49,14 +49,26 @@ if st.button("🚀 Generate Bridge Report"):
             # Show Result
             report_text = response.text
             st.markdown(report_text)
+# --- 4. PDF GENERATION (FIXED) ---
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Helvetica", size=12) # Use Helvetica for better compatibility
+pdf.cell(200, 10, txt="Veda Career Bridge: Official Report", ln=True, align='C')
+pdf.ln(10)
 
-            # PDF Download
-            pdf = FPDF()
-            pdf.add_page()
-            pdf.set_font("Arial", size=12)
-            pdf.multi_cell(0, 10, txt=report_text.encode('latin-1', 'ignore').decode('latin-1'))
-            pdf_bytes = pdf.output(dest='S').encode('latin-1')
-            st.download_button("📥 Download PDF Report", data=pdf_bytes, file_name="Career_Pivot.pdf")
+# multi_cell handles long text wrapping
+# We remove the .encode('latin-1') part because fpdf2 handles it better now
+pdf.multi_cell(0, 10, txt=report_text)
+
+# We just get the output as bytes directly
+pdf_output = pdf.output() 
+
+# Create the download button
+st.download_button(
+    label="📥 Download Full PDF Roadmap",
+    data=pdf_output, 
+    file_name="Career_Pivot_Plan.pdf",
+    mime="application/pdf"
 
         except Exception as e:
             st.error(f"Something went wrong: {e}")
