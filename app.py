@@ -50,27 +50,47 @@ if st.button("🚀 Generate Bridge Report"):
             report_text = response.text
             st.markdown(report_text)
             
-# --- 4. PDF GENERATION (FIXED) ---
-pdf = FPDF()
-pdf.add_page()
-pdf.set_font("Helvetica", size=12) # Use Helvetica for better compatibility
-pdf.cell(200, 10, txt="Veda Career Bridge: Official Report", ln=True, align='C')
-pdf.ln(10)
+# --- 4. EXECUTION (FIXED ALIGNMENT) ---
+if st.button("🚀 Generate Bridge Report"):
+    if not api_key:
+        st.error("Please enter your API Key in the sidebar.")
+    else:
+        try:
+            # The risky AI action
+            client = genai.Client(api_key=api_key)
+            search_tool = types.Tool(google_search=types.GoogleSearch())
+            
+            with st.status("🔍 Veda is scanning the 2026 market...", expanded=True) as status:
+                final_prompt = build_custom_prompt(current_job, target_role)
+                
+                response = client.models.generate_content(
+                    model="gemini-3-pro-preview", 
+                    contents=final_prompt,
+                    config=types.GenerateContentConfig(
+                        tools=[search_tool],
+                        thinking_config=types.ThinkingConfig(thinking_level="high")
+                    )
+                )
+                status.update(label="✅ Analysis Complete!", state="complete")
 
-# multi_cell handles long text wrapping
-# We remove the .encode('latin-1') part because fpdf2 handles it better now
-pdf.multi_cell(0, 10, txt=report_text)
+            # Show Result
+            report_text = response.text
+            st.markdown(report_text)
 
-# We just get the output as bytes directly
-pdf_output = pdf.output() 
+            # PDF Download logic
+            pdf = FPDF()
+            pdf.add_page()
+            pdf.set_font("Helvetica", size=12)
+            pdf.cell(200, 10, txt="Veda Career Bridge: Official Report", ln=True, align='C')
+            pdf.ln(10)
+            pdf.multi_cell(0, 10, txt=report_text)
+            
+            pdf_bytes = pdf.output()
+            st.download_button("📥 Download PDF Report", data=pdf_bytes, file_name="Career_Pivot.pdf")
 
-# Create the download button
-st.download_button(
-    label="📥 Download Full PDF Roadmap",
-    data=pdf_output, 
-    file_name="Career_Pivot_Plan.pdf",
-    mime="application/pdf"
-)
-
+        except Exception as e:
+            # This is the "safety net" that fixes your error
+            st.error(f"Something went wrong: {e}")
+        
         except Exception as e:
             st.error(f"Something went wrong: {e}")
