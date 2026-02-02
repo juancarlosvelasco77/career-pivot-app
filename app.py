@@ -70,6 +70,7 @@ st.download_button(
     data=pdf_output, 
     file_name="Career_Pivot_Plan.pdf",
     mime="application/pdf"
+)
 
         except Exception as e:
             st.error(f"Something went wrong: {e}")
